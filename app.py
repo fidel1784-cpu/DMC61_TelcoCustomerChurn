@@ -517,3 +517,132 @@ elif opcion == "Análisis EDA":
         st.caption(
             "Esta clasificación no modifica los datos originales."
         )
+
+# -----------------------------------------------------
+# ÍTEM 3: ESTADÍSTICAS DESCRIPTIVAS
+# -----------------------------------------------------
+with tab3:
+
+    st.header("Ítem 3: Estadísticas descriptivas")
+
+    st.write(
+        """
+        En este apartado se analizan las principales medidas
+        estadísticas de las variables numéricas del dataset.
+        Se revisan medidas de tendencia central y dispersión
+        para comprender el comportamiento de los datos.
+        """
+    )
+
+    # Intentamos convertir TotalCharges si viene como texto
+    df_est = df.copy()
+
+    if "TotalCharges" in df_est.columns:
+        df_est["TotalCharges"] = pd.to_numeric(
+            df_est["TotalCharges"],
+            errors="coerce"
+        )
+
+    variables_numericas = [
+        col for col in [
+            "tenure",
+            "MonthlyCharges",
+            "TotalCharges"
+        ]
+        if col in df_est.columns
+    ]
+
+    if len(variables_numericas) == 0:
+
+        st.warning(
+            "No se identificaron variables numéricas para analizar."
+        )
+
+    else:
+
+        st.subheader("Resumen estadístico (.describe())")
+
+        st.dataframe(
+            df_est[variables_numericas].describe(),
+            use_container_width=True
+        )
+
+        st.subheader(
+            "Medidas de tendencia central y dispersión"
+        )
+
+        resumen = []
+
+        for columna in variables_numericas:
+
+            resumen.append({
+                "Variable": columna,
+                "Media": round(
+                    df_est[columna].mean(), 2
+                ),
+                "Mediana": round(
+                    df_est[columna].median(), 2
+                ),
+                "Desv. estándar": round(
+                    df_est[columna].std(), 2
+                ),
+                "Mínimo": round(
+                    df_est[columna].min(), 2
+                ),
+                "Máximo": round(
+                    df_est[columna].max(), 2
+                )
+            })
+
+        st.dataframe(
+            pd.DataFrame(resumen),
+            hide_index=True,
+            use_container_width=True
+        )
+
+        st.subheader("Interpretación básica")
+
+        if "MonthlyCharges" in variables_numericas:
+
+            media_monthly = (
+                df_est["MonthlyCharges"].mean()
+            )
+
+            mediana_monthly = (
+                df_est["MonthlyCharges"].median()
+            )
+
+            st.write(
+                f"""
+                • El cargo mensual promedio es
+                **{media_monthly:.2f}**.
+
+                • La mediana de cargos mensuales es
+                **{mediana_monthly:.2f}**.
+
+                • La diferencia entre media y mediana
+                permite identificar posibles asimetrías
+                en la distribución.
+                """
+            )
+
+        if "tenure" in variables_numericas:
+
+            tenure_promedio = (
+                df_est["tenure"].mean()
+            )
+
+            st.write(
+                f"""
+                • La permanencia promedio de los clientes es
+                de **{tenure_promedio:.2f} meses**.
+                """
+            )
+
+        st.info(
+            """
+            La desviación estándar permite evaluar la
+            variabilidad de los datos. Valores altos
+            indican mayor dispersión entre clientes.
+            """
+        )
