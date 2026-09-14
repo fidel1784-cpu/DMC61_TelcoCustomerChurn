@@ -833,3 +833,85 @@ with tab5:
         asimetrías o valores extremos.
         """
     )
+
+# -----------------------------------------------------
+# ÍTEM 6: VARIABLES CATEGÓRICAS
+# -----------------------------------------------------
+with tab6:
+
+    st.header("Ítem 6: Análisis de variables categóricas")
+
+    st.write(
+        """
+        Se analizan las variables categóricas para conocer
+        la composición del conjunto de clientes y las
+        proporciones de cada categoría.
+        """
+    )
+
+    categoricas = [
+        col
+        for col in df.columns
+        if df[col].dtype == "object"
+        and col != "customerID"
+    ]
+
+    variable = st.selectbox(
+        "Seleccione una variable categórica",
+        categoricas
+    )
+
+    conteo = (
+        df[variable]
+        .value_counts()
+        .reset_index()
+    )
+
+    conteo.columns = [
+        variable,
+        "Cantidad"
+    ]
+
+    st.subheader("Tabla de frecuencias")
+
+    st.dataframe(
+        conteo,
+        hide_index=True,
+        use_container_width=True
+    )
+
+    fig, ax = plt.subplots(figsize=(8,4))
+
+    sns.countplot(
+        data=df,
+        x=variable,
+        order=df[variable].value_counts().index,
+        palette="Blues",
+        ax=ax
+    )
+
+    plt.xticks(rotation=45)
+
+    st.pyplot(fig)
+
+    porcentaje = (
+        df[variable]
+        .value_counts(normalize=True)
+        .mul(100)
+        .round(2)
+    )
+
+    st.subheader("Proporción (%)")
+
+    st.dataframe(
+        porcentaje.rename("Porcentaje"),
+        use_container_width=True
+    )
+
+    st.info(
+        """
+        La distribución de categorías permite comprender
+        la composición de la cartera de clientes y
+        detectar segmentos dominantes dentro del dataset.
+        """
+    )
