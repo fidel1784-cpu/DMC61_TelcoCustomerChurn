@@ -1191,11 +1191,9 @@ with tab10:
 
     st.subheader("Distribución general de Churn")
 
-    st.bar_chart(
-        churn_pct
-    )
+    st.bar_chart(churn_pct)
 
-        st.subheader("Conclusiones Finales")
+    st.subheader("Conclusiones Finales")
 
     st.success(
         """
@@ -1248,3 +1246,4 @@ with tab10:
         asociados al comportamiento de los clientes.
         """
     )
+``
