@@ -57,6 +57,52 @@ class AnalizadorTelco:
             ).round(2)
         })
 
+        def clasificar_variables(self):
+        """Clasifica las variables según su significado en Telco."""
+        numericas = {"tenure", "MonthlyCharges", "TotalCharges"}
+        registros = []
+
+        for columna in self.df.columns:
+            tipo_actual = str(self.df[columna].dtype)
+
+            if columna == "customerID":
+                clasificacion = "Identificador"
+                observacion = "Identifica al cliente; no es una medida."
+
+            elif columna in numericas:
+                clasificacion = "Numérica"
+
+                if pd.api.types.is_numeric_dtype(self.df[columna]):
+                    observacion = "Almacenada como número."
+                else:
+                    observacion = (
+                        "Representa una cantidad, pero está almacenada "
+                        "como texto. Requiere revisión y conversión."
+                    )
+
+            elif columna == "SeniorCitizen":
+                clasificacion = "Categórica"
+                observacion = (
+                    "Indicador binario: 0 y 1 representan categorías."
+                )
+
+            elif pd.api.types.is_numeric_dtype(self.df[columna]):
+                clasificacion = "Numérica"
+                observacion = "Clasificación basada en el tipo de dato."
+
+            else:
+                clasificacion = "Categórica"
+                observacion = "Representa categorías o etiquetas."
+
+            registros.append({
+                "Variable": columna,
+                "Tipo actual en Pandas": tipo_actual,
+                "Clasificación": clasificacion,
+                "Observación": observacion
+            })
+
+        return pd.DataFrame(registros)
+
 
 # =========================================================
 # LECTURA Y VALIDACIÓN INICIAL
@@ -312,8 +358,9 @@ elif opcion == "Análisis EDA":
         f"y {df.shape[1]} columnas."
     )
 
-    tab1, = st.tabs([
-        "1. Información general"
+    tab1, tab2 = st.tabs([
+        "1. Información general",
+        "2. Clasificación de variables"
     ])
 
     # -----------------------------------------------------
@@ -398,3 +445,75 @@ elif opcion == "Análisis EDA":
                 "a números cuando desarrollemos la limpieza. "
                 "En este ítem todavía no se modifica esa columna."
             )
+
+    with tab2:
+        st.header("Ítem 2: Clasificación de variables")
+
+        st.write(
+            "Clasificamos las variables según su significado en el "
+            "dataset. El tipo almacenado en Pandas puede diferir "
+            "de su función en el análisis."
+        )
+
+        clasificacion = analizador_eda.clasificar_variables()
+
+        conteos = (
+            clasificacion["Clasificación"]
+            .value_counts()
+            .reindex(
+                ["Numérica", "Categórica", "Identificador"],
+                fill_value=0
+            )
+        )
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("Variables numéricas", int(conteos["Numérica"]))
+
+        with col2:
+            st.metric("Variables categóricas", int(conteos["Categórica"]))
+
+        with col3:
+            st.metric("Identificadores", int(conteos["Identificador"]))
+
+        st.subheader("Clasificación detallada")
+
+        st.dataframe(
+            clasificacion,
+            hide_index=True,
+            use_container_width=True
+        )
+
+        st.subheader("Conteo por clasificación")
+        st.bar_chart(conteos.rename("Cantidad"))
+
+        st.subheader("Interpretación")
+
+        st.write(
+            "**Numéricas:** tenure representa la antigüedad del "
+            "cliente; MonthlyCharges, el cargo mensual; y "
+            "TotalCharges, los cargos acumulados."
+        )
+
+        st.write(
+            "**Categóricas:** describen características del cliente, "
+            "servicios contratados, condiciones de contratación "
+            "y abandono del servicio. SeniorCitizen pertenece "
+            "a este grupo aunque esté codificada con números."
+        )
+
+        st.write(
+            "**Identificador:** customerID se utiliza para identificar "
+            "clientes y revisar posibles duplicados."
+        )
+
+        st.info(
+            "TotalCharges se clasifica como numérica por su significado. "
+            "Su conversión desde texto se realizará durante la limpieza, "
+            "comprobando los valores que no puedan convertirse."
+        )
+
+        st.caption(
+            "Esta clasificación no modifica los datos originales."
+        )
