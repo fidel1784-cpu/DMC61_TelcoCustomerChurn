@@ -350,10 +350,18 @@ elif opcion == "Análisis EDA":
         f"y {df.shape[1]} columnas."
     )
 
-    tab1, tab2 = st.tabs([
-        "1. Información general",
-        "2. Clasificación de variables"
-    ])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([
+    "1. Información general",
+    "2. Clasificación de variables",
+    "3. Estadísticas descriptivas",
+    "4. Valores faltantes",
+    "5. Variables numéricas",
+    "6. Variables categóricas",
+    "7. Numérico vs categórico",
+    "8. Categórico vs categórico",
+    "9. Análisis dinámico",
+    "10. Hallazgos"
+])
 
     # -----------------------------------------------------
     # ÍTEM 1: INFORMACIÓN GENERAL DEL DATASET
