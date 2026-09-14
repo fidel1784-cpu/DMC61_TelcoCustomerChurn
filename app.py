@@ -1,4 +1,4 @@
-from io import BytesIO
+from io import BytesIO, StringIO
 
 import pandas as pd
 import streamlit as st
@@ -32,6 +32,30 @@ class AnalizadorTelco:
 
     def obtener_vista_previa(self, cantidad=5):
         return self.df.head(cantidad)
+
+    def obtener_info(self):
+        buffer = StringIO()
+
+        self.df.info(
+            buf=buffer,
+            verbose=True,
+            show_counts=True
+        )
+
+        return buffer.getvalue()
+
+    def resumen_estructura(self):
+        nulos = self.df.isna().sum()
+
+        return pd.DataFrame({
+            "Variable": self.df.columns,
+            "Tipo de dato": self.df.dtypes.astype(str).values,
+            "Valores no nulos": self.df.notna().sum().values,
+            "Valores nulos": nulos.values,
+            "Nulos (%)": (
+                nulos.values / len(self.df) * 100
+            ).round(2)
+        })
 
 
 # =========================================================
@@ -281,13 +305,96 @@ elif opcion == "Análisis EDA":
         st.stop()
 
     df = st.session_state["dataset_telco"]
+    analizador_eda = AnalizadorTelco(df)
 
     st.success(
         f"Dataset disponible: {len(df):,} filas "
         f"y {df.shape[1]} columnas."
     )
 
-    st.info(
-        "Aquí desarrollaremos los diez ítems del caso, "
-        "uno por uno, siguiendo las instrucciones."
-    )
+    tab1, = st.tabs([
+        "1. Información general"
+    ])
+
+    # -----------------------------------------------------
+    # ÍTEM 1: INFORMACIÓN GENERAL DEL DATASET
+    # -----------------------------------------------------
+    with tab1:
+
+        st.header("Ítem 1: Información general del dataset")
+
+        st.write(
+            """
+            Revisamos la estructura inicial del archivo, los tipos
+            de datos reconocidos por Pandas y la cantidad de valores
+            nulos. Esta revisión permite identificar qué aspectos
+            requieren limpieza antes de continuar con el análisis.
+            """
+        )
+
+        filas, columnas = analizador_eda.obtener_dimensiones()
+        total_nulos = int(df.isna().sum().sum())
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("Número de filas", f"{filas:,}")
+
+        with col2:
+            st.metric("Número de columnas", columnas)
+
+        with col3:
+            st.metric("Celdas nulas", f"{total_nulos:,}")
+
+        st.subheader("Información obtenida con .info()")
+
+        st.code(
+            analizador_eda.obtener_info(),
+            language="text"
+        )
+
+        st.subheader("Tipos de datos y conteo de nulos")
+
+        st.dataframe(
+            analizador_eda.resumen_estructura(),
+            hide_index=True,
+            use_container_width=True
+        )
+
+        st.subheader("Interpretación inicial")
+
+        st.write(
+            f"El archivo contiene {filas:,} registros y "
+            f"{columnas} variables. Pandas reconoce "
+            f"{total_nulos:,} celdas como valores nulos."
+        )
+
+        if total_nulos == 0:
+            st.info(
+                "No se detectaron nulos mediante isna(). "
+                "Sin embargo, las cadenas vacías o formadas "
+                "por espacios pueden requerir una revisión adicional."
+            )
+
+        else:
+            variables_con_nulos = int(
+                (df.isna().sum() > 0).sum()
+            )
+
+            st.warning(
+                f"Hay {variables_con_nulos} variables con nulos. "
+                "Revisaremos su tratamiento en el ítem de "
+                "valores faltantes."
+            )
+
+        if "TotalCharges" in df.columns:
+            st.write(
+                f"**Tipo actual de TotalCharges:** "
+                f"`{df['TotalCharges'].dtype}`."
+            )
+
+            st.caption(
+                "Revisaremos si sus valores pueden convertirse "
+                "a números cuando desarrollemos la limpieza. "
+                "En este ítem todavía no se modifica esa columna."
+            )
