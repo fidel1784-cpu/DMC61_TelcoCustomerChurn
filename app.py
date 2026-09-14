@@ -646,3 +646,123 @@ with tab3:
             indican mayor dispersión entre clientes.
             """
         )
+
+# -----------------------------------------------------
+# ÍTEM 4: ANÁLISIS DE VALORES FALTANTES
+# -----------------------------------------------------
+with tab4:
+
+    st.header("Ítem 4: Análisis de valores faltantes")
+
+    st.write(
+        """
+        En este apartado se revisa la existencia de valores
+        faltantes en el dataset. La identificación de datos
+        incompletos es importante porque puede afectar los
+        análisis posteriores.
+        """
+    )
+
+    # Conteo de nulos por columna
+    nulos = df.isnull().sum()
+
+    tabla_nulos = pd.DataFrame({
+        "Variable": nulos.index,
+        "Valores faltantes": nulos.values,
+        "Porcentaje (%)":
+            (nulos.values / len(df) * 100).round(2)
+    })
+
+    st.subheader("Conteo de valores faltantes")
+
+    st.dataframe(
+        tabla_nulos,
+        hide_index=True,
+        use_container_width=True
+    )
+
+    total_nulos = int(nulos.sum())
+
+    st.metric(
+        "Total de valores faltantes",
+        total_nulos
+    )
+
+    st.subheader(
+        "Variables con valores faltantes"
+    )
+
+    nulos_filtrados = (
+        tabla_nulos[
+            tabla_nulos["Valores faltantes"] > 0
+        ]
+        .sort_values(
+            "Valores faltantes",
+            ascending=False
+        )
+    )
+
+    if len(nulos_filtrados) > 0:
+
+        st.dataframe(
+            nulos_filtrados,
+            hide_index=True,
+            use_container_width=True
+        )
+
+        st.bar_chart(
+            nulos_filtrados.set_index(
+                "Variable"
+            )["Valores faltantes"]
+        )
+
+    else:
+
+        st.success(
+            "No se detectaron valores nulos mediante isnull()."
+        )
+
+    # Caso especial de TotalCharges
+    if "TotalCharges" in df.columns:
+
+        totalcharges_nulos = pd.to_numeric(
+            df["TotalCharges"],
+            errors="coerce"
+        ).isnull().sum()
+
+        st.subheader(
+            "Revisión adicional de TotalCharges"
+        )
+
+        st.write(
+            f"""
+            Al intentar convertir la columna
+            TotalCharges a formato numérico,
+            se detectaron **{totalcharges_nulos}**
+            registros no válidos.
+            """
+        )
+
+    st.subheader("Interpretación")
+
+    if total_nulos == 0:
+
+        st.info(
+            """
+            El dataset no presenta valores faltantes
+            identificados por Pandas. Sin embargo,
+            pueden existir cadenas vacías o espacios
+            que requieran una revisión adicional.
+            """
+        )
+
+    else:
+
+        st.warning(
+            f"""
+            Se identificaron {total_nulos} valores
+            faltantes en el dataset. Antes de realizar
+            análisis más avanzados sería recomendable
+            evaluar estrategias de limpieza o imputación.
+            """
+        )
