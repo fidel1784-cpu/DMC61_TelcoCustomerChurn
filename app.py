@@ -1195,39 +1195,49 @@ with tab10:
         churn_pct
     )
 
-    st.subheader("Principales insights")
+        st.subheader("Conclusiones Finales")
 
     st.success(
         """
-        1. La mayoría de los clientes permanecen activos.
+        1. La mayor parte de los clientes permanece activa,
+        lo que indica que la empresa mantiene una base de
+        clientes relativamente estable.
         """
     )
 
     st.success(
         """
-        2. Existen diferencias en la permanencia de los
-        clientes según el tipo de contrato.
+        2. La antigüedad del cliente (tenure) muestra
+        diferencias importantes entre los grupos de
+        clientes, por lo que constituye una variable
+        relevante para comprender la permanencia y la fuga.
         """
     )
 
     st.success(
         """
-        3. Los cargos mensuales muestran una distribución
-        heterogénea entre clientes.
+        3. Los cargos mensuales y acumulados presentan
+        una distribución heterogénea, evidenciando la
+        existencia de distintos perfiles de clientes
+        dentro de la cartera analizada.
         """
     )
 
     st.success(
         """
-        4. La antigüedad del cliente constituye una de las
-        variables más relevantes para analizar la fuga.
+        4. El análisis de variables categóricas muestra
+        que ciertos tipos de contrato, servicios y métodos
+        de pago presentan comportamientos diferenciados
+        respecto al abandono del servicio.
         """
     )
 
     st.success(
         """
-        5. Algunos segmentos presentan porcentajes de
-        abandono más elevados que otros.
+        5. El análisis exploratorio permitió identificar
+        patrones asociados al churn y generar información
+        útil para apoyar futuras estrategias de retención
+        y segmentación de clientes.
         """
     )
 
