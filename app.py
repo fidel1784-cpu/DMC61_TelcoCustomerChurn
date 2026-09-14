@@ -1077,3 +1077,164 @@ with tab8:
         que abandonan el servicio.
         """
     )
+
+# -----------------------------------------------------
+# ÍTEM 9: ANÁLISIS DINÁMICO
+# -----------------------------------------------------
+with tab9:
+
+    st.header("Ítem 9: Análisis basado en parámetros seleccionados")
+
+    st.write(
+        """
+        Este módulo permite realizar análisis dinámicos
+        mediante la selección interactiva de variables
+        y filtros definidos por el usuario.
+        """
+    )
+
+    # Slider
+    rango_tenure = st.slider(
+        "Seleccione rango de tenure (meses)",
+        min_value=int(df["tenure"].min()),
+        max_value=int(df["tenure"].max()),
+        value=(
+            int(df["tenure"].min()),
+            int(df["tenure"].max())
+        )
+    )
+
+    df_filtrado = df[
+        (df["tenure"] >= rango_tenure[0]) &
+        (df["tenure"] <= rango_tenure[1])
+    ]
+
+    # Multiselect
+    estados_churn = st.multiselect(
+        "Seleccione estado de Churn",
+        options=df["Churn"].unique(),
+        default=df["Churn"].unique()
+    )
+
+    df_filtrado = df_filtrado[
+        df_filtrado["Churn"].isin(estados_churn)
+    ]
+
+    # Selectbox
+    variable = st.selectbox(
+        "Seleccione variable categórica",
+        [
+            "Contract",
+            "InternetService",
+            "PaymentMethod",
+            "PaperlessBilling"
+        ]
+    )
+
+    # Checkbox
+    mostrar_tabla = st.checkbox(
+        "Mostrar tabla de datos filtrados"
+    )
+
+    st.metric(
+        "Clientes filtrados",
+        len(df_filtrado)
+    )
+
+    fig, ax = plt.subplots(figsize=(8,4))
+
+    sns.countplot(
+        data=df_filtrado,
+        x=variable,
+        hue="Churn",
+        ax=ax
+    )
+
+    plt.xticks(rotation=45)
+
+    st.pyplot(fig)
+
+    if mostrar_tabla:
+
+        st.dataframe(
+            df_filtrado.head(20),
+            use_container_width=True
+        )
+
+    st.info(
+        """
+        El usuario puede modificar los filtros para
+        explorar diferentes segmentos de clientes.
+        """
+    )
+
+# -----------------------------------------------------
+# ÍTEM 10: HALLAZGOS CLAVE
+# -----------------------------------------------------
+with tab10:
+
+    st.header("Ítem 10: Hallazgos clave")
+
+    st.write(
+        """
+        A partir de los análisis exploratorios realizados
+        se identificaron los siguientes hallazgos.
+        """
+    )
+
+    churn_pct = (
+        df["Churn"]
+        .value_counts(normalize=True)
+        .mul(100)
+        .round(2)
+    )
+
+    st.subheader("Distribución general de Churn")
+
+    st.bar_chart(
+        churn_pct
+    )
+
+    st.subheader("Principales insights")
+
+    st.success(
+        """
+        1. La mayoría de los clientes permanecen activos.
+        """
+    )
+
+    st.success(
+        """
+        2. Existen diferencias en la permanencia de los
+        clientes según el tipo de contrato.
+        """
+    )
+
+    st.success(
+        """
+        3. Los cargos mensuales muestran una distribución
+        heterogénea entre clientes.
+        """
+    )
+
+    st.success(
+        """
+        4. La antigüedad del cliente constituye una de las
+        variables más relevantes para analizar la fuga.
+        """
+    )
+
+    st.success(
+        """
+        5. Algunos segmentos presentan porcentajes de
+        abandono más elevados que otros.
+        """
+    )
+
+    st.info(
+        """
+        Estos hallazgos representan una aproximación
+        exploratoria y permiten identificar patrones
+        asociados al comportamiento de los clientes.
+        """
+    )
