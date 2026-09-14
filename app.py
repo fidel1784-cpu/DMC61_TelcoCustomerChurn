@@ -849,31 +849,31 @@ with tab6:
         """
     )
 
-    categoricas = (
-    df.select_dtypes(
-        include=["object", "string", "category"]
-    )
-    .columns
-    .tolist()
-)
+    # Identificar variables categóricas
+    categoricas = []
 
-if "customerID" in categoricas:
-    categoricas.remove("customerID")
+    for col in df.columns:
+
+        if col == "customerID":
+            continue
+
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            categoricas.append(col)
+
+    st.write(
+        f"Variables categóricas detectadas: {len(categoricas)}"
+    )
 
     if len(categoricas) == 0:
 
-    st.warning(
-        "No se detectaron variables categóricas."
-    )
+        st.error(
+            "No se detectaron variables categóricas."
+        )
 
-    st.stop()
+        st.write(df.dtypes)
 
-    variable = st.selectbox(
-    "Seleccione una variable categórica",
-    categoricas
-)
+        st.stop()
 
-    st.write("Variables detectadas:", categoricas)
     variable = st.selectbox(
         "Seleccione una variable categórica",
         categoricas
@@ -904,7 +904,6 @@ if "customerID" in categoricas:
         data=df,
         x=variable,
         order=df[variable].value_counts().index,
-        palette="Blues",
         ax=ax
     )
 
@@ -919,7 +918,7 @@ if "customerID" in categoricas:
         .round(2)
     )
 
-    st.subheader("Proporción (%)")
+    st.subheader("Proporciones (%)")
 
     st.dataframe(
         porcentaje.rename("Porcentaje"),
@@ -929,7 +928,7 @@ if "customerID" in categoricas:
     st.info(
         """
         La distribución de categorías permite comprender
-        la composición de la cartera de clientes y
-        detectar segmentos dominantes dentro del dataset.
+        la composición de los clientes y detectar
+        segmentos predominantes dentro del dataset.
         """
     )
