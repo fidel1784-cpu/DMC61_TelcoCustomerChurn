@@ -23,7 +23,6 @@ ANIO = 2026
 # Ampliaremos sus métodos al desarrollar los ítems del EDA.
 # =========================================================
 class AnalizadorTelco:
-
     def __init__(self, dataframe):
         self.df = dataframe.copy()
 
@@ -35,13 +34,7 @@ class AnalizadorTelco:
 
     def obtener_info(self):
         buffer = StringIO()
-
-        self.df.info(
-            buf=buffer,
-            verbose=True,
-            show_counts=True
-        )
-
+        self.df.info(buf=buffer, verbose=True, show_counts=True)
         return buffer.getvalue()
 
     def resumen_estructura(self):
@@ -57,7 +50,7 @@ class AnalizadorTelco:
             ).round(2)
         })
 
-        def clasificar_variables(self):
+    def clasificar_variables(self):
         """Clasifica las variables según su significado en Telco."""
         numericas = {"tenure", "MonthlyCharges", "TotalCharges"}
         registros = []
@@ -102,7 +95,6 @@ class AnalizadorTelco:
             })
 
         return pd.DataFrame(registros)
-
 
 # =========================================================
 # LECTURA Y VALIDACIÓN INICIAL
