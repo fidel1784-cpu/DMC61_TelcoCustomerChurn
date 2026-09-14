@@ -2,6 +2,8 @@ from io import BytesIO, StringIO
 
 import pandas as pd
 import streamlit as st
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 # =========================================================
@@ -766,3 +768,68 @@ with tab4:
             evaluar estrategias de limpieza o imputación.
             """
         )
+
+# -----------------------------------------------------
+# ÍTEM 5: DISTRIBUCIÓN DE VARIABLES NUMÉRICAS
+# -----------------------------------------------------
+with tab5:
+
+    st.header("Ítem 5: Distribución de variables numéricas")
+
+    st.write(
+        """
+        Se analiza la distribución de las variables
+        numéricas mediante histogramas para identificar
+        concentración de valores, dispersión y posibles
+        asimetrías.
+        """
+    )
+
+    df_num = df.copy()
+
+    if "TotalCharges" in df_num.columns:
+        df_num["TotalCharges"] = pd.to_numeric(
+            df_num["TotalCharges"],
+            errors="coerce"
+        )
+
+    variables_numericas = [
+        col for col in [
+            "tenure",
+            "MonthlyCharges",
+            "TotalCharges"
+        ]
+        if col in df_num.columns
+    ]
+
+    for variable in variables_numericas:
+
+        st.subheader(variable)
+
+        fig, ax = plt.subplots(figsize=(8,4))
+
+        sns.histplot(
+            data=df_num,
+            x=variable,
+            bins=30,
+            kde=True,
+            color="steelblue",
+            ax=ax
+        )
+
+        ax.set_title(
+            f"Distribución de {variable}"
+        )
+
+        st.pyplot(fig)
+
+    st.subheader("Interpretación")
+
+    st.write(
+        """
+        Los histogramas permiten identificar la forma
+        de distribución de cada variable, observar
+        concentraciones de clientes y detectar posibles
+        asimetrías o valores extremos.
+        """
+    )
