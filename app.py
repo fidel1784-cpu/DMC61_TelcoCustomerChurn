@@ -1246,4 +1246,3 @@ with tab10:
         asociados al comportamiento de los clientes.
         """
     )
-``
