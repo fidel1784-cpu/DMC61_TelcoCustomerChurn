@@ -932,3 +932,148 @@ with tab6:
         segmentos predominantes dentro del dataset.
         """
     )
+
+# -----------------------------------------------------
+# ÍTEM 7: NUMÉRICO VS CATEGÓRICO
+# -----------------------------------------------------
+with tab7:
+
+    st.header("Ítem 7: Análisis bivariado (Numérico vs Categórico)")
+
+    st.write(
+        """
+        Se analiza la relación entre variables numéricas
+        y la variable Churn para identificar diferencias
+        en el comportamiento de los clientes que abandonan
+        y los que permanecen en la empresa.
+        """
+    )
+
+    df_bi = df.copy()
+
+    if "TotalCharges" in df_bi.columns:
+        df_bi["TotalCharges"] = pd.to_numeric(
+            df_bi["TotalCharges"],
+            errors="coerce"
+        )
+
+    variable_numerica = st.selectbox(
+        "Seleccione una variable numérica",
+        ["tenure", "MonthlyCharges", "TotalCharges"],
+        key="numerica_tab7"
+    )
+
+    fig, ax = plt.subplots(figsize=(8,4))
+
+    sns.boxplot(
+        data=df_bi,
+        x="Churn",
+        y=variable_numerica,
+        palette="Blues",
+        ax=ax
+    )
+
+    ax.set_title(
+        f"{variable_numerica} vs Churn"
+    )
+
+    st.pyplot(fig)
+
+    st.subheader("Resumen estadístico")
+
+    resumen = (
+        df_bi.groupby("Churn")[variable_numerica]
+        .describe()
+        .round(2)
+    )
+
+    st.dataframe(
+        resumen,
+        use_container_width=True
+    )
+
+    st.info(
+        """
+        Este análisis permite comparar el comportamiento
+        de los clientes que abandonan el servicio frente
+        a aquellos que permanecen activos.
+        """
+    )
+
+# -----------------------------------------------------
+# ÍTEM 8: CATEGÓRICO VS CATEGÓRICO
+# -----------------------------------------------------
+with tab8:
+
+    st.header("Ítem 8: Análisis bivariado (Categórico vs Categórico)")
+
+    st.write(
+        """
+        Se analiza la relación entre variables categóricas
+        y la variable Churn para identificar segmentos
+        con mayores proporciones de abandono.
+        """
+    )
+
+    variables_cat = [
+        "Contract",
+        "InternetService",
+        "PaymentMethod",
+        "PaperlessBilling"
+    ]
+
+    variable_cat = st.selectbox(
+        "Seleccione una variable categórica",
+        variables_cat,
+        key="cat_tab8"
+    )
+
+    tabla = pd.crosstab(
+        df[variable_cat],
+        df["Churn"]
+    )
+
+    st.subheader("Tabla de contingencia")
+
+    st.dataframe(
+        tabla,
+        use_container_width=True
+    )
+
+    tabla_pct = pd.crosstab(
+        df[variable_cat],
+        df["Churn"],
+        normalize="index"
+    ) * 100
+
+    fig, ax = plt.subplots(figsize=(8,4))
+
+    tabla_pct.plot(
+        kind="bar",
+        stacked=True,
+        ax=ax
+    )
+
+    ax.set_ylabel("Porcentaje")
+    ax.set_title(
+        f"{variable_cat} vs Churn"
+    )
+
+    plt.xticks(rotation=45)
+
+    st.pyplot(fig)
+
+    st.subheader("Proporción (%)")
+
+    st.dataframe(
+        tabla_pct.round(2),
+        use_container_width=True
+    )
+
+    st.info(
+        """
+        Esta comparación permite identificar categorías
+        que presentan mayores porcentajes de clientes
+        que abandonan el servicio.
+        """
+    )
