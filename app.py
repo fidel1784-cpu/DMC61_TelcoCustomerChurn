@@ -849,13 +849,31 @@ with tab6:
         """
     )
 
-    categoricas = [
-        col
-        for col in df.columns
-        if df[col].dtype == "object"
-        and col != "customerID"
-    ]
+    categoricas = (
+    df.select_dtypes(
+        include=["object", "string", "category"]
+    )
+    .columns
+    .tolist()
+)
 
+if "customerID" in categoricas:
+    categoricas.remove("customerID")
+
+    if len(categoricas) == 0:
+
+    st.warning(
+        "No se detectaron variables categóricas."
+    )
+
+    st.stop()
+
+    variable = st.selectbox(
+    "Seleccione una variable categórica",
+    categoricas
+)
+
+    st.write("Variables detectadas:", categoricas)
     variable = st.selectbox(
         "Seleccione una variable categórica",
         categoricas
